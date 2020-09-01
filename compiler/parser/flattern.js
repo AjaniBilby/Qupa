@@ -50,10 +50,10 @@ function VariableStr (node) {
 	let str = DuplicateChar(node.tokens[0], "$") + node.tokens[1].tokens;
 	if (node.tokens[2]) {
 		for (let access of node.tokens[2]){
-			if (access.tokens[0] == "[]") {
-				str += `[${access.tokens[1].tokens.map( x => DataTypeStr(x) ).join(", ")}]`;
+			if (access[0] == "[]") {
+				str += `[${access[1].tokens.map( x => DataTypeStr(x) ).join(", ")}]`;
 			} else {
-				str += access.tokens[0] + access.tokens[1].tokens;
+				str += access[0] + access[1].tokens;
 			}
 		}
 	}
