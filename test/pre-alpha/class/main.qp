@@ -23,40 +23,29 @@ class Counter {
 	}
 
 	void print() {
-		system.print(this->.val);
+		system.println(this->.val);
 		return;
 	}
 }
 
-// void Parse(@Counter a) {
-	// a.print(a);
-	// a.increment(a);
-	// a.print(a);
-//
-	// return;
-// }
+void Parse(Counter a) {
+	a.print();
+	a.increment();
+	a.print();
 
-external assume {
-	void print(i32 val);
+	return;
 }
 
-// void Test() {
-
-// 	// print(this->.val);
-// 	// Parse(this);
-
-// 	return;
-// }
 
 int main (@Counter this) {
-	// Counter a;
-	// a.set(3);
-	// a.print();
-	// a.decrement();
-	// a.print();
+	Counter a;
+	a.set(3);
+	a.print();
+	a.decrement();
+	a.print();
 
-	// Parse(a);
-	// a.print();
+	Parse(a);
+	a.print();
 
 	return 0;
 }
