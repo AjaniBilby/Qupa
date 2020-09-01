@@ -62,21 +62,21 @@ class Function {
 	}
 
 	merge(other){
-		for (let instance of this.instances) {
-			if (instance.match(other.instances[0])) {
-				return false;
-			}
+		if (other instanceof Function) {
+			this.instances = this.instances.concat( other.instances );
+			return true;
 		}
 
-		this.instances = this.instances.concat( other.instances );
-
-		return true;
+		return false;
 	}
 
 	link() {
 		for (let instance of this.instances) {
 			instance.link();
 		}
+
+		// TODO
+		// COLLISION CHECK
 
 		return;
 	}

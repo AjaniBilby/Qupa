@@ -36,6 +36,18 @@ class Class extends TypeDef {
 		return this.structure.getTerm(name, register);
 	}
 
+	getFunction (access, signature, template) {
+		if (access.length != 1) {
+			return null;
+		}
+
+		if (this.names[access[0]]) {
+			return this.names[access[0]].getFunction([], signature, template);
+		}
+
+		return null;
+	}
+
 	parse() {
 		this.name = this.ast.tokens[0].tokens;
 		this.represent = "%class." + (

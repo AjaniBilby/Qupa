@@ -40,6 +40,7 @@ class Execution extends ExecutionFlow {
 	 * @param {BNF_Node} ast
 	 */
 	compile_call(ast) {
+		let file = this.getFile();
 		let instruction = null;
 		let preamble    = new LLVM.Fragment();
 		let epilog      = new LLVM.Fragment();
@@ -59,6 +60,23 @@ class Execution extends ExecutionFlow {
 				return null;
 			}
 
+			// if (expr.type.type instanceof Class) {
+				// let type = obj.type.duplicate().offsetPointer(1);
+				// let id = new LLVM.ID(ast.ref);
+				// let temp = new LLVM.Name(id, false, ast.ref);
+				// let arg = new LLVM.Argument(type.toLLVM(), temp, ast.ref);
+				// preamble.append(new LLVM.Set(
+				// 	temp,
+				// 	new LLVM.Alloc(obj.type.duplicate().offsetPointer(0).toLLVM(), ast.ref),
+				// 	ast.ref
+				// ));
+				// preamble.append(new LLVM.Store(
+				// 	arg,
+				// 	obj.instruction,
+				// 	ast.ref
+				// ));
+			// }
+
 			preamble.merge(expr.preamble);
 			epilog.merge(expr.epilog);
 
@@ -71,31 +89,57 @@ class Execution extends ExecutionFlow {
 			}
 		}
 
-
-
-		// Link any [] accessors
-		let accesses = [ ast.tokens[0].tokens[1].tokens ];
-		let file = this.getFile();
-		for (let access of ast.tokens[0].tokens[2]) {
-			if (access[0] == "[]") {
-				file.throw (
-					`Error: Class base function execution is currently unsupported`,
-					inner.ref.start, inner.ref.end
-				);
-				return null;
-			} else {
-				accesses.push([access[0], access[1].tokens]);
-			}
-		}
-
 		// Link any template access
 		let template = this.resolveTemplate(ast.tokens[1]);
 		if (template === null) {
 			return null;
 		}
 
-		// Find a function with the given signature
-		let target = this.getFunction(accesses, signature, template);
+		let target = null;
+		let entry = ast.tokens[0].tokens[1].tokens;
+		if (this.scope.hasVariable(entry)) {
+			let last = ast.tokens[0].tokens[2].slice(-1)[0];
+			ast.tokens[0].tokens[2] = ast.tokens[0].tokens[2].slice(0, -1);
+
+			if (last[0] != ".") {
+				file.throw(
+					`Error: Unable to handle non-direct class function access`,
+					ast.ref.start, ast.ref.end
+				);
+				return null;
+			}
+
+			let obj = this.getVar(ast.tokens[0]);
+			preamble.merge(obj.preamble);
+
+			preamble.merge(obj.register.flushCache(ast.ref, true));
+
+			args = [ obj.register.toLLVM(), ...args ];
+			signature = [ obj.register.type, ...signature ];
+
+			target = obj.register.type.type.getFunction([last[1].tokens], signature, template);
+			ast.tokens[0].tokens[2].push(last);
+		} else {
+			// Link any [] accessors
+			let accesses = [ ast.tokens[0].tokens[1].tokens ];
+
+			for (let access of ast.tokens[0].tokens[2]) {
+				if (access[0] == "[]") {
+					file.throw (
+						`Error: Class base function execution is currently unsupported`,
+						inner.ref.start, inner.ref.end
+					);
+					return null;
+				} else {
+					accesses.push([access[0], access[1].tokens]);
+				}
+			}
+
+			// Find a function with the given signature
+			target = this.getFunction(accesses, signature, template);
+		}
+
+
 		if (!target) {
 			let funcName = Flattern.VariableStr(ast.tokens[0]);
 			file.throw(

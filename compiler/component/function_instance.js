@@ -128,6 +128,11 @@ class Function_Instance {
 
 		this.returnType = this.signature.splice(0, 1)[0];
 		this.linked = true;
+
+		let owningClass = this.getOwningClass();
+		if (owningClass) {
+			this.signature = [ new TypeRef(1, owningClass), ...this.signature ];
+		}
 	}
 
 
@@ -172,6 +177,7 @@ class Function_Instance {
 		let args = [];
 
 		let owningClass = this.getOwningClass();
+		let offset = owningClass === null ? 0 : 1;
 		if (owningClass) {
 			args.push({
 				type: new TypeRef(1, owningClass),
@@ -180,9 +186,9 @@ class Function_Instance {
 			});
 		}
 
-		for (let i=0; i<this.signature.length; i++) {
+		for (let i=0; i<this.signature.length-offset; i++) {
 			args.push({
-				type: this.signature[i],                    // TypeRef
+				type: this.signature[i+offset],             // TypeRef
 				name: head.tokens[2].tokens[i][1].tokens,   // Name
 				ref: head.tokens[2].tokens[i][0].ref.start  // Ref
 			});

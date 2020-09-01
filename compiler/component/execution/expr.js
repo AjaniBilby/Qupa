@@ -68,7 +68,8 @@ class Execution extends ExecutionBase {
 						ir_t1,
 						new LLVM.Constant(`c"${str}"`, ast.ref),
 						ast.ref
-					)
+					),
+					ast.ref
 				));
 				preamble.append(new LLVM.Set(
 					new LLVM.Name(ptr_id, false, ast.ref),
