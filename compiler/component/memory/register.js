@@ -221,7 +221,7 @@ class Register extends Value {
 				this.cache.writePending = false;
 			}
 		} else if (allowGEP) {
-			this.flushGEPCaches(ref);
+			frag.merge( this.flushGEPCaches(ref) );
 		}
 
 		this.writePending = false;

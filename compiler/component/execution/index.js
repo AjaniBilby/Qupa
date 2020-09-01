@@ -15,8 +15,9 @@ class Execution extends ExecutionFlow {
 	/**
 	 *
 	 * @param {Function|Execution} ctx
-	 * @param {*} returnType
-	 * @param {*} scope
+	 * @param {TypeRef} returnType
+	 * @param {Scope} scope
+	 * @param {LLVM.ID} entryPoint
 	 */
 	constructor(ctx, returnType, scope, entryPoint = new LLVM.ID()) {
 		super();
