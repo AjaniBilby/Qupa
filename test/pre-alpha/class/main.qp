@@ -1,4 +1,4 @@
-import "print" as system;
+import "print.qp" as system;
 
 class Counter {
 	int val;
@@ -28,6 +28,8 @@ void Parse(Counter a) {
 	a.print(a);
 	a.increment(a);
 	a.print(a);
+
+	return;
 }
 
 int main () {
@@ -39,4 +41,6 @@ int main () {
 
 	Parse(a);
 	a.print();
+
+	return 0;
 }

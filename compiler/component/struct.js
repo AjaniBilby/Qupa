@@ -69,6 +69,66 @@ class Structure extends TypeDef {
 		return { preamble, instruction, signature, typeRef: this.terms[i].typeRef };
 	}
 
+	/**
+	 * Check if the name is in use
+	 * @param {String} name
+	 */
+	hasTerm(name) {
+		for (let term of this.terms) {
+			if (term.name == name) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 *
+	 * @param {String} name
+	 * @param {TypeRef} type
+	 * @param {BNF_Reference} ref
+	 * @returns {Struct_Term?}
+	 */
+	addTerm(name, type, ref) {
+		if (this.hasTerm(name)) {
+			this.ctx.getFile().throw(
+				`Error: Multiple use of term ${name} in struct`,
+				this.terms[name].declared,
+				node.ref.end
+			);
+			return null;
+		}
+
+		let term = new Struct_Term(name, type, ref);
+		this.size += term.size;
+		this.terms.push(term);
+
+		return term;
+	}
+
+	processTerm(node) {
+		let typeNode = node.tokens[0];
+		let typeRef = this.ctx.getType(Flattern.DataTypeList(typeNode));
+		if (typeRef === null) {
+			this.ctx.getFile().throw(
+				`Error: Unknown type ${Flattern.DataTypeStr(typeNode)}`,
+				typeNode.ref.start,
+				typeNode.ref.end
+			);
+			return;
+		}
+		if (!typeRef.type.linked) {
+			type.link([this, ...stack]);
+		}
+
+		return {
+			name: node.tokens[1].tokens,
+			type: new TypeRef(typeNode.tokens[0], typeRef.type),
+			ref: node.ref.start
+		};
+	}
+
 	parse() {
 		this.name = this.ast.tokens[0].tokens;
 		this.represent = "%struct." + (
@@ -89,40 +149,14 @@ class Structure extends TypeDef {
 			return;
 		}
 
-		let termNames = [];
 		this.linked = true;
 		this.size = 0;
 		for (let node of this.ast.tokens[1].tokens) {
-			let name = node.tokens[1].tokens;
-			if (termNames.indexOf(name) != -1) {
-				this.ctx.getFile().throw(
-					`Error: Multiple use of term ${name} in struct`,
-					this.terms[name].declared,
-					node.ref.end
-				);
-				return;
-			}
+			let { name, type, ref } = this.processTerm(node);
 
-			let typeNode = node.tokens[0];
-			let typeRef = this.ctx.getType(Flattern.DataTypeList(typeNode));
-			if (typeRef === null) {
-				this.ctx.getFile().throw(
-					`Error: Unknown type ${Flattern.DataTypeStr(typeNode)}`,
-					typeNode.ref.start,
-					typeNode.ref.end
-				);
-				return;
+			if ( this.addTerm(name, type, ref) === null) {
+				return null;
 			}
-			if (!typeRef.type.linked) {
-				type.link([this, ...stack]);
-			}
-			let term = new Struct_Term(
-				name,
-				new TypeRef(typeNode.tokens[0], typeRef.type),
-				node.ref.start
-			);
-			this.terms.push(term);
-			this.size += term.size;
 		}
 	}
 

@@ -123,8 +123,48 @@ function Simplify_String (node) {
 
 
 
-function Simplify_Class(node) {
-	// TODO
+function Simplify_Class (node) {
+	let out = [
+		Simplify_Name(node.tokens[2][0]),
+		Simplify_Flags(node.tokens[4][0]),
+		Simplify_Class_Inherit(node.tokens[6][0]),
+		Simplify_Class_Body(node.tokens[9][0]).tokens
+	];
+
+	node.reached = null;
+	node.tokens = out;
+	return node;
+}
+function Simplify_Class_Inherit (node) {
+	return null;
+}
+function Simplify_Class_Body (node) {
+	let out = node.tokens[0]
+		.map( x => Simplify_Class_Stmt(x.tokens[1][0]).tokens[0] )
+		.filter( x => x !== null);
+
+	node.reached = null;
+	node.tokens = out;
+	return node;
+}
+function Simplify_Class_Stmt (node) {
+	let inner;
+	switch (node.tokens[0].type) {
+		case "comment":
+			inner = null;
+			break;
+		case "declare":
+			inner = Simplify_Declare(node.tokens[0]);
+			break;
+		case "function":
+			inner = Simplify_Function(node.tokens[0]);
+			break;
+		default:
+			throw new TypeError(`Unexpected function statement ${node.tokens[0].type}`);
+	}
+
+	node.tokens = [inner];
+	node.reached = null;
 	return node;
 }
 
@@ -161,6 +201,11 @@ function Simplify_Template_Arg (node) {
 
 
 function Simplify_Flag_Definition(node) {
+	// TODO
+	return node;
+}
+
+function Simplify_Flags (node) {
 	// TODO
 	return node;
 }
@@ -454,7 +499,7 @@ function Simplify_Function_Head (node) {
 		Simplify_Data_Type  (node.tokens[0][0]), // Return type
 		Simplify_Name       (node.tokens[2][0]), // Name
 		Simplify_Func_Args  (node.tokens[4][0]), // Arguments
-		Simplify_Func_Flags (node.tokens[6][0])  // Flags
+		Simplify_Flags (node.tokens[6][0])  // Flags
 	];
 	node.reached = null;
 	return node;
@@ -525,10 +570,6 @@ function Simplify_Func_Args_List (node) {
 	});
 
 	node.reached = null;
-	return node;
-}
-function Simplify_Func_Flags (node) {
-	// TODO
 	return node;
 }
 function Simplify_Call (node) {

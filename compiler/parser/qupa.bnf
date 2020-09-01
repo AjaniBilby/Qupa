@@ -110,7 +110,8 @@ program ::= w* ( stmt_top w* )*
 		class_inherit ::= "extends" w+ variable
 		class_body ::= ( w* class_stmt )* w*
 		class_stmt ::= comment | template | class_access | function | declare | function_outline
-		class_access ::= "public:" | "private:" | "protected:" | "static:"
+		class_access ::= class_access_mode ":"
+		class_access_mode ::= "public" | "private" | "protected" | "static"
 
 
 #=============================

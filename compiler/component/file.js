@@ -12,6 +12,7 @@ const Import  = require('./import.js');
 const Parse = require('./../parser/parse.js');
 const fs = require('fs');
 const Template = require('./template.js');
+const Class = require('./class.js');
 
 class File {
 	constructor (project, id, filepath) {
@@ -109,6 +110,9 @@ class File {
 				break;
 			case "struct":
 				space = new Structure(this, element);
+				break;
+			case "class":
+				space = new Class(this, element);
 				break;
 			default:
 				throw new Error(`Unexpected file scope namespace type "${element.type}"`);
