@@ -1,7 +1,6 @@
 const { Generator_ID } = require('./generate.js');
 
 const Flattern = require('./../parser/flattern.js');
-const TypeDef = require('./typedef.js');
 const LLVM = require('../middle/llvm.js');
 const Execution = require('./execution/index.js');
 const Scope = require('./memory/scope.js');
@@ -49,6 +48,10 @@ class Function_Instance {
 	}
 	getFunctionInstance() {
 		return this;
+	}
+
+	getOwningClass() {
+		return this.ctx.getOwningClass();
 	}
 
 	/**
@@ -161,10 +164,20 @@ class Function_Instance {
 
 		let head = this.ast.tokens[0];
 		let args = [];
+
+		let owningClass = this.getOwningClass();
+		if (owningClass) {
+			args.push({
+				type: new TypeRef(1, owningClass),
+				name: "this",
+				ref: null
+			});
+		}
+
 		for (let i=0; i<this.signature.length; i++) {
 			args.push({
-				type: this.signature[i],                     // TypeRef
-				name: head.tokens[2].tokens[i][1].tokens,    // Name
+				type: this.signature[i],                    // TypeRef
+				name: head.tokens[2].tokens[i][1].tokens,   // Name
 				ref: head.tokens[2].tokens[i][0].ref.start  // Ref
 			});
 		}
@@ -177,7 +190,7 @@ class Function_Instance {
 		let frag = new LLVM.Procedure(
 			this.returnType.toLLVM(head.tokens[0].ref),
 			new LLVM.Name(this.represent, true, head.tokens[1].ref),
-			res.registers.map( x => x.toLLVM() ),
+			res.inputs,
 			"#1",
 			this.external,
 			this.ref
@@ -190,7 +203,7 @@ class Function_Instance {
 			frag.append( entry.toDefinition(true) );
 
 			// Apply the argument reads
-			frag.merge(res.frag);
+			frag.merge(res.preamble);
 
 			// Compile the internal behaviour
 			let exec = new Execution(

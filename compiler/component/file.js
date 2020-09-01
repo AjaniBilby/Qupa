@@ -228,6 +228,7 @@ class File {
 		return this;
 	}
 	getFileID () {
+		console.warn(new Error("Depricated function"));
 		return this.getID();
 	}
 	getPath() {
@@ -235,6 +236,10 @@ class File {
 	}
 	getRelative() {
 		return path.relative(this.project.rootPath, this.path);
+	}
+
+	getOwningClass() {
+		return null;
 	}
 
 	getFile() {

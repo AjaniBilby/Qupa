@@ -15,7 +15,7 @@ class Register extends Value {
 	 */
 	constructor(type, name, ref) {
 		super(type, ref);
-		this.id           = new LLVM.ID();
+		this.id           = new LLVM.ID(ref);
 		this.name         = name;
 		this.inner        = {};
 		this.cache        = null;
@@ -44,7 +44,7 @@ class Register extends Value {
 					ref
 				};
 			} else {
-				let load = this.deref(scope, read, 1);
+				let load = this.deref(scope, true, 1);
 				if (load == null) {
 					return {
 						error: true,
@@ -332,6 +332,7 @@ class Register extends Value {
 				this.name
 			);
 			out.register = this.cache;
+			this.cache.isConcurrent = this.isConcurrent;
 
 			// If the value is going to be read, loads in the cache value
 			// Otherwise leave the assigned register unused

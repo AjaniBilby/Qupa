@@ -15,8 +15,12 @@ class Function {
 		this.register(ast, external, abstract);
 	}
 
+	getOwningClass() {
+		return this.ctx.getOwningClass();
+	}
+
 	getFileID() {
-		return this.ctx.getFileID();
+		return this.ctx.getFile().getID();
 	}
 
 	getFile() {

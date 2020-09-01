@@ -21,6 +21,10 @@ class TypeDef {
 		this.parse();
 	}
 
+	getFile() {
+		return this.ctx.getFile();
+	}
+
 
 	getTerm () {
 		return null;

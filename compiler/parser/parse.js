@@ -278,13 +278,16 @@ function Simplify_Struct (node) {
 	return node;
 }
 function Simplify_Struct_Body (node) {
-	node.tokens = node.tokens[0].map( x => Simplify_Struct_Stmt(x.tokens[1][0]).tokens[0] );
+	node.tokens = node.tokens[0]
+		.map( x => Simplify_Struct_Stmt(x.tokens[1][0]).tokens[0] )
+		.filter( x => x !== null );
 	node.reached = null;
 	return node;
 }
 function Simplify_Struct_Stmt (node) {
 	switch (node.tokens[0].type) {
 		case "comment":
+			node.tokens = [null];
 			break;
 		case "declare":
 			node.tokens = [ Simplify_Declare(node.tokens[0]) ];

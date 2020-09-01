@@ -14,8 +14,8 @@ class ID extends Instruction {
 	 */
 	reference() {
 		let out = new ID(this.ref);
-		out.origin = false;
 		out.link = this.origin ? this : this.link;
+		out.origin = false;
 
 		return out;
 	}
@@ -60,7 +60,7 @@ class ID extends Instruction {
 		if (this.origin) {
 			this.id = gen.next();
 		} else {
-			this.ref.assignID(gen);
+			this.link.assign_ID(gen);
 		}
 	}
 

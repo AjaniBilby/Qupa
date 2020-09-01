@@ -107,6 +107,11 @@ class Structure extends TypeDef {
 		return term;
 	}
 
+	/**
+	 * Converts an AST to it's relevant details
+	 * @param {BNF_Node} node
+	 * @param {Object} { name, type, ref}
+	 */
 	processTerm(node) {
 		let typeNode = node.tokens[0];
 		let typeRef = this.ctx.getType(Flattern.DataTypeList(typeNode));
@@ -129,10 +134,35 @@ class Structure extends TypeDef {
 		};
 	}
 
+	/**
+	 * Get all names used by the structure
+	 * @returns {String[]}
+	 */
+	getTermNames() {
+		return this.terms.map( x => x.name );
+	}
+
+	getTermRef(name) {
+		let found = false;
+		let i = 0;
+		for (; i<this.terms.length && !found; i++) {
+			if (this.terms[i].name == name.tokens) {
+				found = this.terms[i].ref;
+				break;
+			}
+		}
+		if (!found) {
+			return null;
+		}
+	}
+
+
+
+
 	parse() {
 		this.name = this.ast.tokens[0].tokens;
 		this.represent = "%struct." + (
-			this.external ? this.name : `${this.name}.${this.ctx.getFileID().toString(36)}`
+			this.external ? this.name : `${this.name}.${this.ctx.getFile().getID().toString(36)}`
 		);
 	}
 

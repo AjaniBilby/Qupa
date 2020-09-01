@@ -42,8 +42,8 @@ class Scope {
 	 * @param {Object[]} args
 	 */
 	register_Args(args) {
-		let frag = new LLVM.Fragment();
-		let registers = [];
+		let preamble = new LLVM.Fragment();
+		let inputs = [];
 
 		for (let arg of args) {
 			if (this.variables[arg.name]) {
@@ -55,40 +55,38 @@ class Scope {
 				return null;
 			}
 
-			this.variables[arg.name] = new Register(
+			let reg = new Register(
 				arg.type.duplicate().offsetPointer(1),
 				arg.name,
 				arg.ref
 			);
-			if (arg.pointer > 0) {
-				this.variables[arg.name].isConcurrent = true;
-			}
+			reg.isConcurrent = arg.type.pointer > 0;
+			this.variables[arg.name] = reg;
 
 			let cache = new Register(
 				arg.type,
 				arg.name,
 				arg.ref
 			);
-			this.variables[arg.name].cache = cache;
-			cache.isConcurrent = arg.pointer > 0;
-			registers.push(cache);
+			reg.cache = cache;
+			cache.isConcurrent = arg.type.pointer > 1;
 
-			frag.append(new LLVM.Set(
-				new LLVM.Name(
-					this.variables[arg.name].id,
-					false,
-					arg.ref
-				),
+			// Push declaration
+			inputs.push(cache.toLLVM());
+			cache.id = cache.id.reference();
+
+			preamble.append(new LLVM.Set(
+				reg.toLLVM().name,
 				new LLVM.Alloc(
 					arg.type.toLLVM(arg.ref),
 					arg.ref
 				),
 				arg.ref
 			));
-			this.variables[arg.name].markUpdated();
+			reg.markUpdated();
 		}
 
-		return {frag, registers};
+		return {preamble, inputs};
 	}
 
 
