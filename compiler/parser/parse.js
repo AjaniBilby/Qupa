@@ -311,6 +311,24 @@ function Simplify_Variable (node) {
 		})
 	];
 
+	if (inner[2].length > 0) {
+		let merge = (prev = [], curr) => {
+			if (curr[0][0] === "->") {
+				prev = prev.concat(curr);
+			} else {
+				prev.push(curr);
+			}
+
+			return prev;
+		};
+
+		if (inner[2].length == 1) {
+			inner[2] = merge([], inner[2][0]);
+		} else {
+			inner[2] = inner[2].reduce(merge);
+		}
+	}
+
 	node.reached = null;
 	node.tokens = inner;
 	return node;
@@ -323,7 +341,14 @@ function Simplify_Variable_Access (node) {
 			out = [ "[]", Simplify_Variable_Args(node.tokens[0].tokens[2][0]).tokens ];
 			break;
 		case "accessor_refer":
-			out = [ "->" ];
+			let next   = node.tokens[0].tokens[1][0].tokens[0];
+			let static = next.type == "name";
+			out = [
+				["->"],
+				static ?
+					[ ".", Simplify_Name(next) ] :
+					[ "[]", Simplify_Variable_Args(next) ]
+			];
 			break;
 		case "accessor_static":
 			out = [ ".", Simplify_Name(node.tokens[0].tokens[1][0]) ];

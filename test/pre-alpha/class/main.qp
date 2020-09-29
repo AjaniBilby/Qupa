@@ -4,26 +4,26 @@ class Counter {
 	int val;
 
 	int get() {
-		return this->.val;
+		return this->val;
 	}
 
 	void set(int val) {
-		this->.val = val;
+		this->val = val;
 		return;
 	}
 
 	void increment() {
-		this->.val = this->.val + 1;
+		this->val = this->val + 1;
 		return;
 	}
 
 	void decrement() {
-		this->.val = this->.val - 1;
+		this->val = this->val - 1;
 		return;
 	}
 
 	void print() {
-		system.println(this->.val);
+		system.println(this->val);
 		return;
 	}
 }
@@ -37,15 +37,15 @@ void Parse(Counter a) {
 }
 
 
-int main (@Counter this) {
-	Counter a;
-	a.set(3);
-	a.print();
-	a.decrement();
-	a.print();
+int main () {
+	// Counter a;
+	// a.set(3);
+	// a.print();
+	// a.decrement();
+	// a.print();
 
-	Parse(a);
-	a.print();
+	// Parse(a);
+	// a.print();
 
 	return 0;
 }
